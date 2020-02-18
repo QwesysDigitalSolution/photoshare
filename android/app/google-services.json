@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "731162845496",
+    "firebase_url": "https://photoshare-dfd40.firebaseio.com",
+    "project_id": "photoshare-dfd40",
+    "storage_bucket": "photoshare-dfd40.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:731162845496:android:b681c465568b43b260e1cd",
+        "android_client_info": {
+          "package_name": "com.qwesys.photoshare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "731162845496-o0l18son0dkg298vooth5amo7bmu4vk5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnmftOAu-XokgwWih-LDDAMfJ3AXuI6aA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "731162845496-o0l18son0dkg298vooth5amo7bmu4vk5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
