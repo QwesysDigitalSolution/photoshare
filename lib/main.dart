@@ -10,7 +10,9 @@ import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:http/http.dart' as http;
 import 'package:photoshare/Screen/Dashboard.dart';
 import 'package:photoshare/Screen/Login.dart';
+import 'package:photoshare/Screen/PreviewImage.dart';
 import 'package:photoshare/Screen/Splash.dart';
+import 'package:photoshare/Screen/UpdateBusinessProfile.dart';
 import 'package:photoshare/Screen/UserBusiness.dart';
 import 'package:photoshare/common/Constants.dart' as cnst;
 
@@ -29,6 +31,8 @@ class MyApp extends StatelessWidget {
         '/Login': (context) => Login(),
         '/UserBusiness': (context) => UserBusiness(),
         '/Dashboard': (context) => Dashboard(),
+        '/UpdateBusinessProfile': (context) => UpdateBusinessProfile(),
+        '/PreviewImage': (context) => PreviewImage(),
       },
       theme: ThemeData(
         textTheme: GoogleFonts.latoTextTheme(textTheme).copyWith(

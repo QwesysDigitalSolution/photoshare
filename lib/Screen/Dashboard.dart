@@ -6,7 +6,7 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  ScrollController scrollController;
+  ScrollController scrollController = new ScrollController();
   String appBarTitle = "";
   double wid;
 
@@ -15,7 +15,7 @@ class _DashboardState extends State<Dashboard> {
     // TODO: implement initState
     super.initState();
     //wid=MediaQuery.of(context).size.width;
-    scrollController = new ScrollController();
+    //scrollController = new ScrollController();
     scrollController.addListener(() => setState(() {}));
   }
 
@@ -33,7 +33,7 @@ class _DashboardState extends State<Dashboard> {
       body: DefaultTabController(
         length: 2,
         child: NestedScrollView(
-          controller: scrollController,
+          //controller: scrollController,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
               SliverOverlapAbsorber(
@@ -61,6 +61,7 @@ class _DashboardState extends State<Dashboard> {
                     actions: <Widget>[
                       new Padding(
                         padding: EdgeInsets.all(5.0),
+                        //child: _buildActions(),
                         child: _buildActions(),
                       ),
                     ],
@@ -91,46 +92,59 @@ class _DashboardState extends State<Dashboard> {
                 child: GridView.builder(
                     itemCount: 10,
                     //shrinkWrap: true,
-                    gridDelegate:
-                    SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       childAspectRatio:
-                      MediaQuery.of(context).size.width / (430),
+                          MediaQuery.of(context).size.width / (430),
                     ),
                     itemBuilder: (BuildContext context, int index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: FadeInImage.assetNetwork(
-                          placeholder: 'assets/qwesyslogo.png',
-                          image: "http://media1.santabanta.com/full1/Indian%20%20Celebrities(M)/Hrithik%20Roshan/hrithik-roshan-129a.jpg",
-                          height: 140,
-                          width: MediaQuery.of(context).size.width / 2,
-                          fit: BoxFit.fill,
+                      return GestureDetector(
+                        onTap: () {
+                          //scrollController.dispose();
+                          Navigator.pushNamed(context, "/PreviewImage");
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: FadeInImage.assetNetwork(
+                            placeholder: 'assets/qwesyslogo.png',
+                            image:
+                                "http://media1.santabanta.com/full1/Indian%20%20Celebrities(M)/Hrithik%20Roshan/hrithik-roshan-129a.jpg",
+                            height: 140,
+                            width: MediaQuery.of(context).size.width / 2,
+                            fit: BoxFit.fill,
+                          ),
                         ),
                       );
                     }),
               ),
+
               Container(
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
                 child: GridView.builder(
                     itemCount: 10,
                     //shrinkWrap: true,
-                    gridDelegate:
-                    SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       childAspectRatio:
-                      MediaQuery.of(context).size.width / (430),
+                          MediaQuery.of(context).size.width / (430),
                     ),
                     itemBuilder: (BuildContext context, int index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: FadeInImage.assetNetwork(
-                          placeholder: 'assets/qwesyslogo.png',
-                          image: "http://media1.santabanta.com/full1/Indian%20%20Celebrities(M)/Hrithik%20Roshan/hrithik-roshan-129a.jpg",
-                          height: 140,
-                          width: MediaQuery.of(context).size.width / 2,
-                          fit: BoxFit.fill,
+                      return GestureDetector(
+                        onTap: () {
+                          //scrollController.dispose();
+                          Navigator.pushNamed(context, "/PreviewImage");
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: FadeInImage.assetNetwork(
+                            placeholder: 'assets/qwesyslogo.png',
+                            image:
+                                "http://media1.santabanta.com/full1/Indian%20%20Celebrities(M)/Hrithik%20Roshan/hrithik-roshan-129a.jpg",
+                            height: 140,
+                            width: MediaQuery.of(context).size.width / 2,
+                            fit: BoxFit.fill,
+                          ),
                         ),
                       );
                     }),
@@ -143,47 +157,55 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _buildActions() {
-    Widget profile = new GestureDetector(
-      onTap: () {},
-      child: Padding(
-        padding: const EdgeInsets.only(right: 10),
-        child: Column(
-          children: <Widget>[
-            Container(
-              height: 30.0,
-              width: 30.0,
-              decoration: new BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.grey,
-                image: new DecorationImage(
-                  image: new ExactAssetImage("assets/logo.png"),
-                  fit: BoxFit.cover,
-                ),
-                border: Border.all(color: Colors.black, width: 2.0),
+    try {
+      Widget profile = new GestureDetector(
+            onTap: () {
+              /*scrollController = new ScrollController();
+              scrollController.addListener(() => setState(() {}));*/
+              //scrollController.dispose();
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    height: 30.0,
+                    width: 30.0,
+                    decoration: new BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey,
+                      image: new DecorationImage(
+                        image: new ExactAssetImage("assets/logo.png"),
+                        fit: BoxFit.cover,
+                      ),
+                      border: Border.all(color: Colors.black, width: 2.0),
+                    ),
+                  ),
+                  Text("Profile"),
+                ],
               ),
             ),
-            Text("Profile"),
-          ],
-        ),
-      ),
-    );
+          );
 
-    double scale;
-    if (scrollController.hasClients) {
-      scale = scrollController.offset / wid * 2.5;
-      scale = scale * 2;
-      if (scale > 1) {
-        scale = 1.0;
-      }
-    } else {
-      scale = 0.0;
+      double scale;
+      if (scrollController.hasClients) {
+            scale = scrollController.offset / wid * 2.5;
+            scale = scale * 2;
+            if (scale > 1) {
+              scale = 1.0;
+            }
+          } else {
+            scale = 0.0;
+          }
+
+      return new Transform(
+            transform: new Matrix4.identity()..scale(scale, scale),
+            alignment: Alignment.center,
+            child: profile,
+          );
+    } catch (e) {
+      print(e);
     }
-
-    return new Transform(
-      transform: new Matrix4.identity()..scale(scale, scale),
-      alignment: Alignment.center,
-      child: profile,
-    );
   }
 
   Widget _buildLeading() {
