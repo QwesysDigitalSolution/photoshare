@@ -1,6 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
@@ -10,7 +14,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:photoshare/Common/Constants.dart' as cnst;
 import 'package:http/http.dart' as http;
+import 'package:photoshare/common/Services.dart';
 import 'package:photoshare/main.dart';
+import 'package:progress_dialog/progress_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -21,6 +28,40 @@ class _LoginState extends State<Login> {
   FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = new GoogleSignIn();
   static final FacebookLogin facebookSignIn = new FacebookLogin();
+
+  FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+  StreamSubscription iosSubscription;
+  String fcmToken = "";
+
+  ProgressDialog pr;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (Platform.isIOS) {
+      iosSubscription =
+          _firebaseMessaging.onIosSettingsRegistered.listen((data) {
+        print("FFFFFFFF" + data.toString());
+        saveDeviceToken();
+      });
+      _firebaseMessaging
+          .requestNotificationPermissions(IosNotificationSettings());
+    } else {
+      saveDeviceToken();
+    }
+  }
+
+  saveDeviceToken() async {
+    _firebaseMessaging.getToken().then((String token) {
+      print("Original Token:$token");
+      setState(() {
+        fcmToken = token;
+        //sendFCMTokan(token);
+      });
+      print("FCM Token : $fcmToken");
+    });
+  }
 
   Future<Null> _loginwithFB() async {
     try {
@@ -43,95 +84,178 @@ class _LoginState extends State<Login> {
               backgroundColor: Colors.white,
               gravity: ToastGravity.TOP,
               textColor: Colors.black);
-          _logout();
+          await _logout();
+          await sendUserDetails(profile['id'].toString(), profile['name'],
+              profile['picture']['data']['url'], profile['email'], "FB");
           break;
         case FacebookLoginStatus.cancelledByUser:
           Fluttertoast.showToast(
-              msg: "Login cancelled by the user.",
-              fontSize: 13,
-              backgroundColor: Colors.redAccent,
-              gravity: ToastGravity.TOP,
-              textColor: Colors.white);
+            msg: "Try Again",
+            fontSize: 15,
+            backgroundColor: Colors.black,
+            gravity: ToastGravity.CENTER,
+            textColor: Colors.white,
+            toastLength: Toast.LENGTH_SHORT,
+            timeInSecForIos: 4,
+          );
           _logout();
           break;
         case FacebookLoginStatus.error:
           Fluttertoast.showToast(
-              msg: "Something went wrong with the login process.\n"
-                  "Here\'s the error Facebook gave us: ${result.errorMessage}",
-              fontSize: 13,
-              backgroundColor: Colors.redAccent,
-              gravity: ToastGravity.TOP,
-              textColor: Colors.white);
+            msg: "Try Again",
+            fontSize: 15,
+            backgroundColor: Colors.black,
+            gravity: ToastGravity.CENTER,
+            textColor: Colors.white,
+            toastLength: Toast.LENGTH_SHORT,
+            timeInSecForIos: 4,
+          );
           _logout();
       }
     } catch (e) {
       print("Error in facebook sign in: $e");
       _logout();
     }
-
-
   }
 
   Future<FirebaseUser> _signin(BuildContext context) async {
-    /*Scaffold.of(context).showSnackBar(new SnackBar(
-      content: Text("Sign In"),
-    ));*/
-
     final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
     final GoogleSignInAuthentication googleAuth =
         await googleUser.authentication;
     final AuthCredential credential1 = GoogleAuthProvider.getCredential(
         idToken: googleAuth.idToken, accessToken: googleAuth.accessToken);
 
-    FirebaseUser userDetails =
+    AuthResult userDetails =
         await _firebaseAuth.signInWithCredential(credential1);
-    ProviderDetails providerInfo = new ProviderDetails(userDetails.providerId);
-
-
+    //ProviderDetails providerInfo = new ProviderDetails(userDetails.providerId);
 
     List<ProviderDetails> providerData = new List<ProviderDetails>();
-    providerData.add(providerInfo);
+    userDetails.user;
+    print(userDetails.user);
+    //providerData.add(userDetails.user);
     UserDetails details = new UserDetails(
-        userDetails.providerId,
-        userDetails.displayName,
-        userDetails.photoUrl,
-        userDetails.email,
+        userDetails.user.providerId,
+        userDetails.user.displayName,
+        userDetails.user.photoUrl,
+        userDetails.user.email,
         providerData);
 
-    /*Navigator.push(
-        context,
-        new MaterialPageRoute(
-          builder: (context) => ProfileScreen(detailsUser: details),
-        ));*/
     if (googleUser != null) {
+      Fluttertoast.showToast(
+        msg: "Login Successfully",
+        fontSize: 15,
+        backgroundColor: Colors.black,
+        gravity: ToastGravity.CENTER,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_SHORT,
+        timeInSecForIos: 4,
+      );
       await _logout();
-      Navigator.pushReplacementNamed(context, "/UserBusiness");
+      await sendUserDetails(
+          userDetails.user.uid.toString(),
+          userDetails.user.displayName.toString(),
+          userDetails.user.photoUrl.toString(),
+          userDetails.user.email.toString(),
+          "Gmail");
+    } else {
+      Fluttertoast.showToast(
+        msg: "Try Again",
+        fontSize: 15,
+        backgroundColor: Colors.black,
+        gravity: ToastGravity.CENTER,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_SHORT,
+        timeInSecForIos: 4,
+      );
     }
-
-    /*_showMessage('''
-         Logged in!
-         Name: ${userDetails.displayName}
-         Image: ${userDetails.photoUrl}
-         email: ${userDetails.email}
-         ''');*/
-
-    Fluttertoast.showToast(
-        msg: "Name: ${userDetails.displayName}\n"
-            "Image: ${userDetails.photoUrl}\n"
-            "email: ${userDetails.email}\n",
-        fontSize: 13,
-        backgroundColor: Colors.white,
-        gravity: ToastGravity.TOP,
-        textColor: Colors.black);
-    print("${userDetails.email}");
-    print(userDetails.phoneNumber);
-    return userDetails;
+    return userDetails.user;
   }
 
   _logout() async {
     await facebookSignIn.logOut();
     await _googleSignIn.signOut();
     print("Logged out");
+  }
+
+  showPrDialog() async {
+    pr = new ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: false);
+    pr.style(
+        message: "Please Wait",
+        borderRadius: 10.0,
+        progressWidget: Container(
+          padding: EdgeInsets.all(15),
+          child: CircularProgressIndicator(
+            valueColor: new AlwaysStoppedAnimation<Color>(
+                cnst.app_primary_material_color),
+          ),
+        ),
+        elevation: 10.0,
+        insetAnimCurve: Curves.easeInOut,
+        messageTextStyle: TextStyle(
+            color: Colors.black, fontSize: 17.0, fontWeight: FontWeight.w600));
+  }
+
+  showMsg(String msg, {String title = 'Madhusudan'}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text(title),
+          content: new Text(msg),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Okay"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  sendUserDetails(String providerId, String name, String photourl, String email,
+      String type) async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        await showPrDialog();
+        pr.show();
+
+        FormData formData = new FormData.fromMap({
+          "Id": providerId,
+          "Name": name,
+          "Image": photourl,
+          "Email": email,
+          "Type": type,
+          "FCMToken": fcmToken.toString(),
+        });
+
+        Services.PostServiceForSave("SendMemberInfo.php", formData).then(
+            (data) async {
+          pr.hide();
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          if (data.Data.toString() != "0" && data.Data.toString() != "") {
+            await prefs.setString(cnst.session.Member_Id, data.Data.toString());
+            await prefs.setString(cnst.session.Name, name.toString());
+            await prefs.setString(cnst.session.Email, email);
+            await prefs.setString(cnst.session.Image, photourl);
+            await prefs.setString(cnst.session.LoginStep, "Step1");
+            Navigator.pushReplacementNamed(context, "/UserBusiness");
+          } else {
+            showMsg(data.Message);
+          }
+        }, onError: (e) {
+          pr.hide();
+          showMsg("Try Again.");
+        });
+      }
+    } on SocketException catch (_) {
+      pr.isShowing() ? pr.hide() : Container();
+      showMsg("No Internet Connection.");
+    }
   }
 
   @override

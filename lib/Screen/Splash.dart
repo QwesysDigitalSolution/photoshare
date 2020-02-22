@@ -25,19 +25,18 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
     });*/
 
     Timer(Duration(seconds: 3), () async {
-      /*SharedPreferences prefs = await SharedPreferences.getInstance();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
       String MemberId = prefs.getString(cnst.session.Member_Id);
-      String veri = prefs.getString(cnst.session.IsVerified);
-
-      if (MemberId != null && MemberId != "" && veri=="true") {
-        controller.stop(canceled: true);
+      String login_Step = prefs.getString(cnst.session.LoginStep);
+      if (MemberId != null && MemberId != "" && login_Step=="Done") {
         Navigator.pushReplacementNamed(context, '/Dashboard');
       } else {
-        controller.stop(canceled: true);
-        Navigator.pushReplacementNamed(context, '/Login');
-      }*/
-      Navigator.pushReplacementNamed(context, '/Login');
-
+        if(login_Step=="Step1"){
+          Navigator.pushReplacementNamed(context, "/UserBusiness");
+        }else{
+          Navigator.pushReplacementNamed(context, '/Login');
+        }
+      }
     });
     // TODO: implement initState
     super.initState();

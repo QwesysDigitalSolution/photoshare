@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:photoshare/common/ClassList.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:photoshare/common/Constants.dart' as cnst;
 
 Dio dio = new Dio();
@@ -51,16 +51,16 @@ class Services {
       final response = await dio.post(url, data: body);
       if (response.statusCode == 200) {
         SaveDataClass saveData =
-            new SaveDataClass(Message: 'No Data', IsSuccess: false, Data: '0');
-        var responseData = response.data;
+            new SaveDataClass(Message: 'No Data', IsSuccess: false, Data: "");
+        var responseData = jsonDecode(response.data);
         print("Response JSON : " + responseData.toString());
 
         print("$APIName Response: " + responseData.toString());
 
-        saveData.Message = responseData["Message"].toString();
-        saveData.IsSuccess =
-            responseData["IsSuccess"].toString() == "true" ? true : false;
+        //responseData=responseData.toString().replaceAll("'\'", "");
+        saveData.IsSuccess = responseData["IsSuccess"].toString() == "true" ? true : false;
         saveData.Data = responseData["Data"].toString();
+        saveData.Message = responseData["Message"].toString();
 
         return saveData;
       } else {

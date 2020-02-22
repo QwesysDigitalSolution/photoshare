@@ -7,12 +7,10 @@ class PreviewImage extends StatefulWidget {
 }
 
 class _PreviewImageState extends State<PreviewImage> {
-
   @override
   Widget build(BuildContext context) {
     double widt = MediaQuery.of(context).size.height;
     return Scaffold(
-      //backgroundColor: Colors.black,
       body: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
@@ -79,7 +77,7 @@ class _PreviewImageState extends State<PreviewImage> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: (){
+                      onTap: () {
                         Navigator.pop(context);
                       },
                       child: Padding(
@@ -104,10 +102,11 @@ class _PreviewImageState extends State<PreviewImage> {
                   ],
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
 }
+
