@@ -241,7 +241,7 @@ class _LoginState extends State<Login> {
             await prefs.setString(cnst.session.Member_Id, data.Data.toString());
             await prefs.setString(cnst.session.Name, name.toString());
             await prefs.setString(cnst.session.Email, email);
-            await prefs.setString(cnst.session.Image, photourl);
+            await prefs.setString(cnst.session.UserImage, photourl);
             await prefs.setString(cnst.session.LoginStep, "Step1");
             Navigator.pushReplacementNamed(context, "/UserBusiness");
           } else {

@@ -66,7 +66,7 @@ class _MyAppState extends State<MyApp> {
         '/UserBusiness': (context) => UserBusiness(),
         '/Dashboard': (context) => Dashboard(),
         '/UpdateBusinessProfile': (context) => UpdateBusinessProfile(),
-        '/PreviewImage': (context) => PreviewImage(),
+        //'/PreviewImage': (context) => PreviewImage(),
       },
       theme: ThemeData(
         textTheme: GoogleFonts.latoTextTheme(textTheme).copyWith(

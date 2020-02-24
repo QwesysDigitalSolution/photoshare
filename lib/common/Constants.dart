@@ -8,13 +8,23 @@ const String img_url = "";
 class session {
   static const String Member_Id = "Member_Id";
   static const String LoginStep = "LoginStep";
+  static const String UserImage = "UserImage";
   static const String Mobile = "Mobile";
   static const String Email = "Email";
   static const String Name = "Name";
-  static const String Gender = "Gender";
-  static const String Address = "Address";
   static const String Image = "Image";
   static const String IsVerified = "IsVerified";
+
+  //Compnay Info
+  static const String CompnayName = "CompnayName";
+  static const String CompnayEmail = "CompnayEmail";
+  static const String CompnayMobile = "CompnayMobile";
+  static const String CompanyCatId = "CompanyCatId";
+  static const String CompanyCatName = "CompanyCatName";
+  static const String CompanyStateName = "CompanyStateName";
+  static const String CompanyStateId = "CompanyStateId";
+  static const String CompanyCityName = "CompanyCityName";
+
 
 }
 

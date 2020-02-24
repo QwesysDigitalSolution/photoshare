@@ -76,3 +76,102 @@ class PhotoOpenCountClass {
     );
   }
 }
+
+class categoryClassData {
+  String Message;
+  bool IsSuccess;
+  List<categoryClass> Data;
+  categoryClassData({
+    this.Message,
+    this.IsSuccess,
+    this.Data,
+  });
+  factory categoryClassData.fromJson(Map<String, dynamic> json) {
+    return categoryClassData(
+        Message: json['Message'] as String,
+        IsSuccess: json['IsSuccess'] as bool,
+        Data: json['Data']
+            .map<categoryClass>((json) => categoryClass.fromJson(json))
+            .toList());
+  }
+}
+
+class categoryClass {
+  String id;
+  String name;
+  categoryClass({this.id, this.name});
+  factory categoryClass.fromJson(Map<String, dynamic> json) {
+    return categoryClass(
+        id: json['Id'].toString() as String,
+        name: json['Name'].toString() as String);
+  }
+
+}
+
+class stateClassData {
+  String Message;
+  bool IsSuccess;
+  List<stateClass> Data;
+
+  stateClassData({
+    this.Message,
+    this.IsSuccess,
+    this.Data,
+  });
+
+  factory stateClassData.fromJson(Map<String, dynamic> json) {
+    return stateClassData(
+        Message: json['Message'] as String,
+        IsSuccess: json['IsSuccess'] as bool,
+        Data: json['Data']
+            .map<stateClass>((json) => stateClass.fromJson(json))
+            .toList());
+  }
+}
+
+class stateClass {
+  String id;
+  String name;
+
+  stateClass({this.id, this.name});
+
+  factory stateClass.fromJson(Map<String, dynamic> json) {
+    return stateClass(
+        id: json['Id'].toString() as String,
+        name: json['Name'].toString() as String);
+  }
+}
+
+class cityClassData {
+  String Message;
+  bool IsSuccess;
+  List<cityClass> Data;
+
+  cityClassData({
+    this.Message,
+    this.IsSuccess,
+    this.Data,
+  });
+
+  factory cityClassData.fromJson(Map<String, dynamic> json) {
+    return cityClassData(
+        Message: json['Message'] as String,
+        IsSuccess: json['IsSuccess'] as bool,
+        Data: json['Data']
+            .map<cityClass>((json) => cityClass.fromJson(json))
+            .toList());
+  }
+}
+
+class cityClass {
+  //String id;
+  String name;
+
+  cityClass({this.name});
+
+  factory cityClass.fromJson(Map<String, dynamic> json) {
+    return cityClass(
+        //id: json['Id'].toString() as String,
+        name: json['Name'].toString() as String);
+  }
+}

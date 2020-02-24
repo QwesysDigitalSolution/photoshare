@@ -27,7 +27,7 @@ class Services {
       if (response.statusCode == 200) {
         List list = [];
         print("$APIName Response: " + response.data.toString());
-        var responseData = response.data;
+        var responseData = jsonDecode(response.data);
         if (responseData["IsSuccess"] == true) {
           list = responseData["Data"];
         } else {
@@ -112,4 +112,83 @@ class Services {
       throw Exception(e);
     }
   }
+
+  //get category List
+  static Future<List<categoryClass>> getCategorys() async {
+    String url = cnst.api_url + 'GetBusinessCategory.php';
+    print("GetCategory Url:" + url);
+
+    try {
+      final response = await dio.get(url);
+      if (response.statusCode == 200) {
+        List<categoryClass> stateClassList = [];
+        print("GetCategory Response" + response.data.toString());
+
+        final jsonResponse = jsonDecode(response.data);
+        categoryClassData data = new categoryClassData.fromJson(jsonResponse);
+
+        stateClassList = data.Data;
+
+        return stateClassList;
+      } else {
+        throw Exception("No Internet Connection");
+      }
+    } catch (e) {
+      print("Check GetState Erorr : " + e.toString());
+      throw Exception(e);
+    }
+  }
+
+
+  static Future<List<stateClass>> getStates() async {
+    String url = cnst.api_url + 'GetState.php';
+    print("GetState Url:" + url);
+
+    try {
+      final response = await dio.get(url);
+      if (response.statusCode == 200) {
+        List<stateClass> stateClassList = [];
+        print("GetState Response" + response.data.toString());
+
+        final jsonResponse = jsonDecode(response.data);
+        stateClassData data = new stateClassData.fromJson(jsonResponse);
+
+        stateClassList = data.Data;
+
+        return stateClassList;
+      } else {
+        throw Exception("No Internet Connection");
+      }
+    } catch (e) {
+      print("Check GetState Erorr : " + e.toString());
+      throw Exception(e);
+    }
+  }
+
+  static Future<List<cityClass>> getCity(String stateId) async {
+    String url = cnst.api_url + 'GetCity.php?Id=$stateId';
+    print("getCity Url:" + url);
+
+    try {
+      final response = await dio.get(url);
+      if (response.statusCode == 200) {
+        List<cityClass> cityClassList = [];
+        print("getCity Response" + response.data.toString());
+
+        final jsonResponse = jsonDecode(response.data);
+        cityClassData data = new cityClassData.fromJson(jsonResponse);
+
+        cityClassList = data.Data;
+
+        return cityClassList;
+      } else {
+        throw Exception("No Internet Connection");
+      }
+    } catch (e) {
+      print("Check getCity Erorr : " + e.toString());
+      throw Exception(e);
+    }
+  }
+
+
 }
