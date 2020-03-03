@@ -215,13 +215,13 @@ class _UserBusinessState extends State<UserBusiness> {
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         Future res = Services.getCategorys();
         await showPrDialog();
-        pr.show();
+        await pr.show();
         res.then((data) async {
           if (data != null && data.length > 0) {
             setState(() {
+              pr.hide();
               _categoryList = data;
             });
-            pr.hide();
           } else {
             setState(() {
               _categoryList.clear();

@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -38,6 +37,8 @@ class _UpdateBusinessProfileState extends State<UpdateBusinessProfile> {
 
   bool stateLoading = false, cityLoading = false;
   String BusinessCategory = "Select Business Category";
+  bool isLoading = true;
+  List CmpData = new List();
 
   @override
   void initState() {
@@ -51,10 +52,14 @@ class _UpdateBusinessProfileState extends State<UpdateBusinessProfile> {
     setState(() {
       MemberId = prefs.getString(cnst.session.Member_Id);
       CmpImage = prefs.getString(cnst.session.Image).toString();
+      txtCmpName.text = prefs.getString(cnst.session.CompnayName).toString();
+      txtEmail.text = prefs.getString(cnst.session.CompnayEmail).toString();
+      txtMobileNo.text = prefs.getString(cnst.session.CompnayMobile).toString();
       BusinessCategory =
           prefs.getString(cnst.session.CompanyCatName).toString();
     });
     await getBusinessCategory();
+
   }
 
   showPrDialog() async {
@@ -167,7 +172,6 @@ class _UpdateBusinessProfileState extends State<UpdateBusinessProfile> {
               targetHeight:
                   (properties.height * 600 / properties.width).round());
         }
-
         FormData formData = new FormData.fromMap({
           "UserId": MemberId,
           "Photo": _memberImage != null
@@ -226,6 +230,7 @@ class _UpdateBusinessProfileState extends State<UpdateBusinessProfile> {
             setState(() {
               _categoryList = data;
             });
+            //await getCompanyInfo();
           } else {
             setState(() {
               _categoryList.clear();
@@ -238,6 +243,56 @@ class _UpdateBusinessProfileState extends State<UpdateBusinessProfile> {
         });
       }
     } on SocketException catch (_) {
+      showMsg("No Internet Connection.");
+    }
+  }
+
+  getCompanyInfo() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        List formData = [
+          {"key": "UserId", "value": MemberId.toString()},
+        ];
+        print("GetMemberCompanyInfo Data = ${formData}");
+        pr.show();
+        /*setState(() {
+          isLoading = true;
+        });*/
+        Services.GetServiceForList("GetMemberCompanyInfo.php", formData).then(
+            (data) async {
+          pr.hide();
+          if (data.length > 0) {
+            /*setState(() {
+                  CmpData = data;
+                });*/
+            pr.hide();
+            setState(() {
+              isLoading = false;
+              CmpData.clear();
+            });
+          } else {
+            pr.hide();
+            setState(() {
+              isLoading = false;
+            });
+          }
+        }, onError: (e) {
+          pr.hide();
+          setState(() {
+            isLoading = false;
+          });
+          //pr.isShowing() ? pr.hide() : null;
+          showMsg("Try Again.");
+        });
+      }
+    } on SocketException catch (_) {
+      pr.isShowing() ? pr.hide() : null;
+      setState(() {
+        // pr.hide();
+        isLoading = false;
+      });
       showMsg("No Internet Connection.");
     }
   }
@@ -368,7 +423,8 @@ class _UpdateBusinessProfileState extends State<UpdateBusinessProfile> {
             (data) async {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           if (data.Data.toString() != "0" && data.Data.toString() != "") {
-            await prefs.setString(cnst.session.CompnayName, txtCmpName.text.toString());
+            await prefs.setString(
+                cnst.session.CompnayName, txtCmpName.text.toString());
             await prefs.setString(cnst.session.CompnayEmail, txtEmail.text);
             await prefs.setString(cnst.session.CompnayMobile, txtMobileNo.text);
             await prefs.setString(cnst.session.CompanyCatId, CatId);
@@ -400,195 +456,201 @@ class _UpdateBusinessProfileState extends State<UpdateBusinessProfile> {
         width: MediaQuery.of(context).size.width,
         color: Colors.white,
         child: SingleChildScrollView(
-          child: Stack(
-            children: <Widget>[
-              Container(
-                height: ScreenHeight * 0.35,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: ExactAssetImage("assets/image_01.png"),
-                  ),
-                  color: Colors.black,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Stack(
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () {
-                        _profileImagePopup(context);
-                      },
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                          //side: BorderSide(color: cnst.appcolor)),
-                          side: BorderSide(
-                              width: 0.10, color: Colors.transparent),
-                          borderRadius: BorderRadius.circular(
-                            10.0,
-                          ),
+                    Container(
+                      height: ScreenHeight * 0.35,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: ExactAssetImage("assets/image_01.png"),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 8, right: 8, top: 8, bottom: 0),
-                              child: Container(
-                                height: 90,
-                                width: 90,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xff7c94b6),
-                                  borderRadius: new BorderRadius.all(
-                                      new Radius.circular(100)),
-                                  border: new Border.all(
-                                    color: cnst.app_primary_material_color,
-                                    width: 2.0,
-                                  ),
-                                ),
-                                child: ClipOval(
-                                  child: _memberImage == null
-                                      ? CmpImage == "" ||
-                                              CmpImage == null ||
-                                              CmpImage == "null"
-                                          ? Image.asset(
-                                              "assets/upload.png",
-                                              height: 90,
-                                              width: 90,
-                                              fit: BoxFit.contain,
-                                            )
-                                          : FadeInImage.assetNetwork(
-                                              placeholder: "assets/loading.gif",
-                                              image: "${CmpImage}",
-                                              height: 90,
-                                              width: 90,
-                                              fit: BoxFit.cover,
-                                            )
-                                      : Image.file(
-                                          File(_memberImage.path),
-                                          height: 90,
-                                          width: 90,
-                                          fit: BoxFit.fill,
-                                        ),
+                        color: Colors.black,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: () {
+                              _profileImagePopup(context);
+                            },
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                //side: BorderSide(color: cnst.appcolor)),
+                                side: BorderSide(
+                                    width: 0.10, color: Colors.transparent),
+                                borderRadius: BorderRadius.circular(
+                                  10.0,
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 5),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  Text(
-                                    "Upload Logo",
-                                    style: TextStyle(fontSize: 10),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8, right: 8, top: 8, bottom: 0),
+                                    child: Container(
+                                      height: 90,
+                                      width: 90,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xff7c94b6),
+                                        borderRadius: new BorderRadius.all(
+                                            new Radius.circular(100)),
+                                        border: new Border.all(
+                                          color:
+                                              cnst.app_primary_material_color,
+                                          width: 2.0,
+                                        ),
+                                      ),
+                                      child: ClipOval(
+                                        child: _memberImage == null
+                                            ? CmpImage == "" ||
+                                                    CmpImage == null ||
+                                                    CmpImage == "null"
+                                                ? Image.asset(
+                                                    "assets/upload.png",
+                                                    height: 90,
+                                                    width: 90,
+                                                    fit: BoxFit.contain,
+                                                  )
+                                                : FadeInImage.assetNetwork(
+                                                    placeholder:
+                                                        "assets/loading.gif",
+                                                    image: "${CmpImage}",
+                                                    height: 90,
+                                                    width: 90,
+                                                    fit: BoxFit.cover,
+                                                  )
+                                            : Image.file(
+                                                File(_memberImage.path),
+                                                height: 90,
+                                                width: 90,
+                                                fit: BoxFit.fill,
+                                              ),
+                                      ),
+                                    ),
                                   ),
-                                  Icon(
-                                    Icons.edit,
-                                    size: 12,
-                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 5),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        Text(
+                                          "Upload Logo",
+                                          style: TextStyle(fontSize: 10),
+                                        ),
+                                        Icon(
+                                          Icons.edit,
+                                          size: 12,
+                                        ),
+                                      ],
+                                    ),
+                                  )
                                 ],
                               ),
-                            )
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(top: ScreenHeight * 0.3),
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(25),
-                      topRight: Radius.circular(25)),
-                  color: Colors.white,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(padding: EdgeInsets.only(top: 10)),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5, bottom: 5),
-                        child: Text(
-                          "Business Information",
-                          style: TextStyle(
-                              fontFamily: "Poppins",
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20),
-                        ),
-                      ),
-                      Divider(
-                        color: Colors.grey,
-                      ),
-                      Padding(padding: EdgeInsets.only(top: 20)),
-                      Container(
-                        height: 50,
-                        child: TextFormField(
-                          controller: txtCmpName,
-                          decoration: new InputDecoration(
-                            labelText: "Enter Company Name",
-                            fillColor: Colors.white,
-                            border: new OutlineInputBorder(
-                              borderRadius: new BorderRadius.circular(0.0),
-                              borderSide: new BorderSide(),
                             ),
-                            //fillColor: Colors.green
-                          ),
-                          keyboardType: TextInputType.text,
-                          style: new TextStyle(
-                            fontFamily: "Poppins",
-                          ),
-                        ),
+                          )
+                        ],
                       ),
-                      Padding(padding: EdgeInsets.only(top: 10)),
-                      Container(
-                        height: 50,
-                        child: TextFormField(
-                          controller: txtEmail,
-                          decoration: new InputDecoration(
-                            labelText: "Enter Email",
-                            fillColor: Colors.white,
-                            border: new OutlineInputBorder(
-                              borderRadius: new BorderRadius.circular(0.0),
-                              borderSide: new BorderSide(),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: ScreenHeight * 0.3),
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(25),
+                            topRight: Radius.circular(25)),
+                        color: Colors.white,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Padding(padding: EdgeInsets.only(top: 10)),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 5, bottom: 5),
+                              child: Text(
+                                "Business Information",
+                                style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20),
+                              ),
                             ),
-                            //fillColor: Colors.green
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                          style: new TextStyle(
-                            fontFamily: "Poppins",
-                          ),
-                        ),
-                      ),
-                      Padding(padding: EdgeInsets.only(top: 10)),
-                      Container(
-                        height: 50,
-                        child: TextFormField(
-                          controller: txtMobileNo,
-                          decoration: new InputDecoration(
-                            labelText: "Enter MobileNo",
-                            counterText: "",
-                            fillColor: Colors.white,
-                            border: new OutlineInputBorder(
-                              borderRadius: new BorderRadius.circular(0.0),
-                              borderSide: new BorderSide(),
+                            Divider(
+                              color: Colors.grey,
                             ),
-                            //fillColor: Colors.green
-                          ),
-                          maxLength: 10,
-                          keyboardType: TextInputType.number,
-                          style: new TextStyle(
-                            fontFamily: "Poppins",
-                          ),
-                        ),
-                      ),
-                      Padding(padding: EdgeInsets.only(top: 10)),
-                      /*Container(
+                            Padding(padding: EdgeInsets.only(top: 20)),
+                            Container(
+                              height: 50,
+                              child: TextFormField(
+                                controller: txtCmpName,
+                                decoration: new InputDecoration(
+                                  labelText: "Enter Company Name",
+                                  fillColor: Colors.white,
+                                  border: new OutlineInputBorder(
+                                    borderRadius:
+                                        new BorderRadius.circular(0.0),
+                                    borderSide: new BorderSide(),
+                                  ),
+                                  //fillColor: Colors.green
+                                ),
+                                keyboardType: TextInputType.text,
+                                style: new TextStyle(
+                                  fontFamily: "Poppins",
+                                ),
+                              ),
+                            ),
+                            Padding(padding: EdgeInsets.only(top: 10)),
+                            Container(
+                              height: 50,
+                              child: TextFormField(
+                                controller: txtEmail,
+                                decoration: new InputDecoration(
+                                  labelText: "Enter Email",
+                                  fillColor: Colors.white,
+                                  border: new OutlineInputBorder(
+                                    borderRadius:
+                                        new BorderRadius.circular(0.0),
+                                    borderSide: new BorderSide(),
+                                  ),
+                                  //fillColor: Colors.green
+                                ),
+                                keyboardType: TextInputType.emailAddress,
+                                style: new TextStyle(
+                                  fontFamily: "Poppins",
+                                ),
+                              ),
+                            ),
+                            Padding(padding: EdgeInsets.only(top: 10)),
+                            Container(
+                              height: 50,
+                              child: TextFormField(
+                                controller: txtMobileNo,
+                                decoration: new InputDecoration(
+                                  labelText: "Enter MobileNo",
+                                  counterText: "",
+                                  fillColor: Colors.white,
+                                  border: new OutlineInputBorder(
+                                    borderRadius:
+                                        new BorderRadius.circular(0.0),
+                                    borderSide: new BorderSide(),
+                                  ),
+                                  //fillColor: Colors.green
+                                ),
+                                maxLength: 10,
+                                keyboardType: TextInputType.number,
+                                style: new TextStyle(
+                                  fontFamily: "Poppins",
+                                ),
+                              ),
+                            ),
+                            Padding(padding: EdgeInsets.only(top: 10)),
+                            /*Container(
                         height: 50,
                         child: TextFormField(
                           decoration: new InputDecoration(
@@ -607,72 +669,111 @@ class _UpdateBusinessProfileState extends State<UpdateBusinessProfile> {
                           ),
                         ),
                       ),*/
-                      SizedBox(
-                        height: 50,
-                        child: InputDecorator(
-                          decoration: new InputDecoration(
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 5),
-                              fillColor: Colors.white,
-                              border: new OutlineInputBorder(
-                                borderRadius: new BorderRadius.circular(0),
-                              )),
-                          child: DropdownButtonHideUnderline(
-                              child: DropdownButton<categoryClass>(
-                            hint: Text(
-                              "${BusinessCategory}",
-                              style: TextStyle(),
+                            SizedBox(
+                              height: 50,
+                              child: InputDecorator(
+                                decoration: new InputDecoration(
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 5),
+                                    fillColor: Colors.white,
+                                    border: new OutlineInputBorder(
+                                      borderRadius:
+                                          new BorderRadius.circular(0),
+                                    )),
+                                child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<categoryClass>(
+                                  hint: Text(
+                                    "${BusinessCategory}",
+                                    style: TextStyle(),
+                                  ),
+                                  value: _categoryClass,
+                                  onChanged: (val) {
+                                    setState(() {
+                                      _categoryClass = val;
+                                    });
+                                  },
+                                  items:
+                                      _categoryList.map((categoryClass Source) {
+                                    return DropdownMenuItem<categoryClass>(
+                                      value: Source,
+                                      child: Text(
+                                        "${Source.name}",
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: "Poppins",
+                                            fontSize: 14),
+                                      ),
+                                    );
+                                  }).toList(),
+                                )),
+                              ),
                             ),
-                            value: _categoryClass,
-                            onChanged: (val) {
-                              setState(() {
-                                _categoryClass = val;
-                              });
-                            },
-                            items: _categoryList.map((categoryClass Source) {
-                              return DropdownMenuItem<categoryClass>(
-                                value: Source,
-                                child: Text(
-                                  "${Source.name}",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: "Poppins",
-                                      fontSize: 14),
-                                ),
-                              );
-                            }).toList(),
-                          )),
-                        ),
-                      ),
-                      Padding(padding: EdgeInsets.only(top: 10)),
-                      Container(
-                        //width: MediaQuery.of(context).size.width / 1.5,
-                        margin: EdgeInsets.only(top: 0),
-                        height: 50,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(8))),
-                        child: MaterialButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: new BorderRadius.circular(5.0)),
-                          color: cnst.app_primary_material_color,
-                          minWidth: MediaQuery.of(context).size.width,
-                          onPressed: () {
-                            /*Navigator.pushReplacementNamed(
+                            Padding(padding: EdgeInsets.only(top: 10)),
+                            Container(
+                              //width: MediaQuery.of(context).size.width / 1.5,
+                              margin: EdgeInsets.only(top: 0),
+                              height: 50,
+                              decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8))),
+                              child: MaterialButton(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        new BorderRadius.circular(5.0)),
+                                color: cnst.app_primary_material_color,
+                                minWidth: MediaQuery.of(context).size.width,
+                                onPressed: () {
+                                  /*Navigator.pushReplacementNamed(
                                 context, "/Dashboard");*/
 
-                            if (txtCmpName.text != "") {
-                              if (txtEmail.text != "") {
-                                if (validateEmail(txtEmail.text) == false) {
-                                  if (txtMobileNo.text != "") {
-                                    if (validateMobile(txtMobileNo.text) ==
-                                        false) {
-                                      if (_categoryClass != null ||
-                                          BusinessCategory !=
-                                              "Select Business Category") {
-                                        sendCompanyInfo();
+                                  if (txtCmpName.text != "") {
+                                    if (txtEmail.text != "") {
+                                      if (validateEmail(txtEmail.text) ==
+                                          false) {
+                                        if (txtMobileNo.text != "") {
+                                          if (validateMobile(
+                                                  txtMobileNo.text) ==
+                                              false) {
+                                            if (_categoryClass != null ||
+                                                BusinessCategory !=
+                                                    "Select Business Category") {
+                                              sendCompanyInfo();
+                                            } else {
+                                              Fluttertoast.showToast(
+                                                msg: "Select Business Category",
+                                                fontSize: 18,
+                                                backgroundColor: Colors.black,
+                                                gravity: ToastGravity.CENTER,
+                                                textColor: Colors.white,
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                timeInSecForIos: 3,
+                                              );
+                                            }
+                                          } else {
+                                            Fluttertoast.showToast(
+                                              msg: "Enter Valid MobileNo",
+                                              fontSize: 18,
+                                              backgroundColor: Colors.black,
+                                              gravity: ToastGravity.CENTER,
+                                              textColor: Colors.white,
+                                              toastLength: Toast.LENGTH_SHORT,
+                                              timeInSecForIos: 3,
+                                            );
+                                          }
+                                        } else {
+                                          Fluttertoast.showToast(
+                                            msg: "Enter MobileNo",
+                                            fontSize: 18,
+                                            backgroundColor: Colors.black,
+                                            gravity: ToastGravity.CENTER,
+                                            textColor: Colors.white,
+                                            toastLength: Toast.LENGTH_SHORT,
+                                            timeInSecForIos: 3,
+                                          );
+                                        }
                                       } else {
                                         Fluttertoast.showToast(
-                                          msg: "Select Business Category",
+                                          msg: "Enter Valid Email",
                                           fontSize: 18,
                                           backgroundColor: Colors.black,
                                           gravity: ToastGravity.CENTER,
@@ -683,7 +784,7 @@ class _UpdateBusinessProfileState extends State<UpdateBusinessProfile> {
                                       }
                                     } else {
                                       Fluttertoast.showToast(
-                                        msg: "Enter Valid MobileNo",
+                                        msg: "Enter Email",
                                         fontSize: 18,
                                         backgroundColor: Colors.black,
                                         gravity: ToastGravity.CENTER,
@@ -694,7 +795,7 @@ class _UpdateBusinessProfileState extends State<UpdateBusinessProfile> {
                                     }
                                   } else {
                                     Fluttertoast.showToast(
-                                      msg: "Enter MobileNo",
+                                      msg: "Enter Company Name",
                                       fontSize: 18,
                                       backgroundColor: Colors.black,
                                       gravity: ToastGravity.CENTER,
@@ -703,58 +804,25 @@ class _UpdateBusinessProfileState extends State<UpdateBusinessProfile> {
                                       timeInSecForIos: 3,
                                     );
                                   }
-                                } else {
-                                  Fluttertoast.showToast(
-                                    msg: "Enter Valid Email",
-                                    fontSize: 18,
-                                    backgroundColor: Colors.black,
-                                    gravity: ToastGravity.CENTER,
-                                    textColor: Colors.white,
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    timeInSecForIos: 3,
-                                  );
-                                }
-                              } else {
-                                Fluttertoast.showToast(
-                                  msg: "Enter Email",
-                                  fontSize: 18,
-                                  backgroundColor: Colors.black,
-                                  gravity: ToastGravity.CENTER,
-                                  textColor: Colors.white,
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  timeInSecForIos: 3,
-                                );
-                              }
-                            } else {
-                              Fluttertoast.showToast(
-                                msg: "Enter Company Name",
-                                fontSize: 18,
-                                backgroundColor: Colors.black,
-                                gravity: ToastGravity.CENTER,
-                                textColor: Colors.white,
-                                toastLength: Toast.LENGTH_SHORT,
-                                timeInSecForIos: 3,
-                              );
-                            }
-                          },
-                          child: Text(
-                            "Submit",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 17.0,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: "Poppins"),
-                            textAlign: TextAlign.center,
-                          ),
+                                },
+                                child: Text(
+                                  "Submit",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 17.0,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: "Poppins"),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
       ),
     );
   }

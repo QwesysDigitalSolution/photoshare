@@ -68,6 +68,8 @@ class _LoginState extends State<Login> {
       final FacebookLoginResult result = await facebookSignIn.logIn(['email']);
       switch (result.status) {
         case FacebookLoginStatus.loggedIn:
+          await showPrDialog();
+          pr.show();
           final FacebookAccessToken accessToken = result.accessToken;
 
           var graphResponse = await http.get(
@@ -76,19 +78,21 @@ class _LoginState extends State<Login> {
           var profile = json.decode(graphResponse.body);
           print(profile.toString());
 
-          Fluttertoast.showToast(
+          /*Fluttertoast.showToast(
               msg: "Name : ${profile['name']}\n"
                   "Image: ${profile['picture']['data']['url']}\n"
                   "email: ${profile['email']}\n",
               fontSize: 13,
               backgroundColor: Colors.white,
               gravity: ToastGravity.TOP,
-              textColor: Colors.black);
+              textColor: Colors.black);*/
+          await pr.hide();
           await _logout();
           await sendUserDetails(profile['id'].toString(), profile['name'],
               profile['picture']['data']['url'], profile['email'], "FB");
           break;
         case FacebookLoginStatus.cancelledByUser:
+          await pr.hide();
           Fluttertoast.showToast(
             msg: "Try Again",
             fontSize: 15,
@@ -98,9 +102,12 @@ class _LoginState extends State<Login> {
             toastLength: Toast.LENGTH_SHORT,
             timeInSecForIos: 4,
           );
+          //await pr.hide();
           _logout();
           break;
         case FacebookLoginStatus.error:
+          await pr.hide();
+          //await pr.hide();
           Fluttertoast.showToast(
             msg: "Try Again",
             fontSize: 15,
@@ -114,6 +121,7 @@ class _LoginState extends State<Login> {
       }
     } catch (e) {
       print("Error in facebook sign in: $e");
+      await pr.hide();
       _logout();
     }
   }
@@ -122,6 +130,8 @@ class _LoginState extends State<Login> {
     final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
     final GoogleSignInAuthentication googleAuth =
         await googleUser.authentication;
+    await showPrDialog();
+    pr.show();
     final AuthCredential credential1 = GoogleAuthProvider.getCredential(
         idToken: googleAuth.idToken, accessToken: googleAuth.accessToken);
 
@@ -140,6 +150,7 @@ class _LoginState extends State<Login> {
         userDetails.user.email,
         providerData);
 
+    await pr.hide();
     if (googleUser != null) {
       Fluttertoast.showToast(
         msg: "Login Successfully",
@@ -172,6 +183,7 @@ class _LoginState extends State<Login> {
   }
 
   _logout() async {
+    //await pr.hide();
     await facebookSignIn.logOut();
     await _googleSignIn.signOut();
     print("Logged out");
@@ -365,7 +377,7 @@ class _LoginState extends State<Login> {
                                       minWidth:
                                           MediaQuery.of(context).size.width,
                                       onPressed: () {
-                                        _signin(context);
+                                        _signin(context)==null?pr.hide():null;
                                       },
                                       child: Row(
                                         mainAxisAlignment:
@@ -458,7 +470,7 @@ class _LoginState extends State<Login> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             Text(
-                              "Poword by : ",
+                              "Power by : ",
                               style: TextStyle(),
                             ),
                             InkWell(

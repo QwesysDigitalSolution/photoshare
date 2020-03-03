@@ -8,6 +8,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:photoshare/Common/Constants.dart' as cnst;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui' as ui;
+
 class PreviewImage extends StatefulWidget {
   var data;
 
@@ -48,20 +49,20 @@ class _PreviewImageState extends State<PreviewImage> {
     });
   }
 
-   _capturePng() async {
+  _capturePng() async {
     try {
       print('inside');
 
       RenderRepaintBoundary boundary =
-      _globalKey.currentContext.findRenderObject();
+          _globalKey.currentContext.findRenderObject();
       ui.Image image = await boundary.toImage(pixelRatio: 3.0);
       ByteData byteData =
-      await image.toByteData(format: ui.ImageByteFormat.png);
+          await image.toByteData(format: ui.ImageByteFormat.png);
       Uint8List pngBytes = byteData.buffer.asUint8List();
       /*var pngBytes = byteData.buffer.asUint8List();
       var bs64 = base64Encode(pngBytes);*/
-      await Share.file(
-          'Photoshare', 'photoshare.png', byteData.buffer.asUint8List(), 'image/png',
+      await Share.file('Photoshare', 'photoshare.png',
+          byteData.buffer.asUint8List(), 'image/png',
           text: 'My optional text.');
     } catch (e) {
       print(e);
@@ -70,16 +71,16 @@ class _PreviewImageState extends State<PreviewImage> {
 
   _download() async {
     RenderRepaintBoundary boundary =
-    _globalKey.currentContext.findRenderObject();
+        _globalKey.currentContext.findRenderObject();
     ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-    ByteData byteData =
-    await image.toByteData(format: ui.ImageByteFormat.png);
+    ByteData byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     Uint8List pngBytes = byteData.buffer.asUint8List();
 
     final result =
-    await ImageGallerySaver.saveImage(Uint8List.fromList(pngBytes));
+        await ImageGallerySaver.saveImage(Uint8List.fromList(pngBytes));
     print(result);
   }
+
   @override
   Widget build(BuildContext context) {
     double widt = MediaQuery.of(context).size.height;
@@ -91,25 +92,53 @@ class _PreviewImageState extends State<PreviewImage> {
           width: MediaQuery.of(context).size.width,
           child: Stack(
             children: <Widget>[
-              RepaintBoundary(
-                key: _globalKey,
-                child: Container(
-                  height: widt - (widt * 0.139),
-                  width: MediaQuery.of(context).size.width,
-                  //color: Colors.red,
-                  child: Stack(children: <Widget>[
-                    Center(child: Image.network("${widget.data["Image"]}")),
-                    Align(
+              Container(
+                height: widt - (widt * 0.139),
+                width: MediaQuery.of(context).size.width,
+                /*Center(
+                    child: Image.network(
+                      "${widget.data["Image"]}",
+                    ),
+                  ),
+                  Align(
+                    alignment: alignment,
+                    child: Image.network(
+                      "${CmpLogo}",
                       alignment: alignment,
-                      child: Image.network(
-                        "${CmpLogo}",
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.contain,
+                    ),
+                  ),*/
+                child: RepaintBoundary(
+                  key: _globalKey,
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.fitHeight,
+                      child: Container(
+                        height: 200,
+                        width: MediaQuery.of(context).size.width,
+                        /*foregroundDecoration: const BoxDecoration(
+                          image: DecorationImage(
+                              image: NetworkImage(
+                                  'https://p6.storage.canalblog.com/69/50/922142/85510911_o.png'),
+                              fit: BoxFit.fill),
+                        ),*/
                         alignment: alignment,
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.contain,
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: new NetworkImage("${widget.data["Image"]}",),
+                                fit: BoxFit.fill)),
+                        child: Image.network(
+                          "${CmpLogo}",
+                          height: 120,
+                          width: 120,
+                          alignment: alignment,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
-                  ]),
+                  ),
                 ),
               ),
               Align(
@@ -127,7 +156,7 @@ class _PreviewImageState extends State<PreviewImage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       GestureDetector(
-                        onTap:(){
+                        onTap: () {
                           _download();
                         },
                         child: Padding(
@@ -152,7 +181,7 @@ class _PreviewImageState extends State<PreviewImage> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: (){
+                        onTap: () {
                           _capturePng();
                         },
                         child: Padding(
@@ -184,7 +213,8 @@ class _PreviewImageState extends State<PreviewImage> {
                           padding: const EdgeInsets.only(right: 5),
                           child: Container(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(15)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(15)),
                               color: Colors.white,
                             ),
                             child: Padding(
