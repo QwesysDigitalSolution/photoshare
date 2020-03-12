@@ -73,8 +73,7 @@ class Services {
     }
   }
 
-  static Future<SaveDataClass> GetServiceForSave(
-      String APIName, List params) async {
+  static Future<SaveDataClass> GetServiceForSave(String APIName, List params) async {
     String Url = APIName + "?";
     for (int i = 0; i < params.length; i++) {
       Url = Url + '${params[i]["key"]}=${params[i]["value"]}';
@@ -139,7 +138,6 @@ class Services {
     }
   }
 
-
   static Future<List<stateClass>> getStates() async {
     String url = cnst.api_url + 'GetState.php';
     print("GetState Url:" + url);
@@ -189,6 +187,5 @@ class Services {
       throw Exception(e);
     }
   }
-
 
 }

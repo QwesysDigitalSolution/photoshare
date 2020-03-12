@@ -1004,7 +1004,21 @@ class _UserBusinessState extends State<UserBusiness> {
                                       if (_categoryClass != null) {
                                         if (_stateClass != null) {
                                           if (_cityClass != null) {
-                                            sendCompanyInfo();
+
+                                            if(_memberImage==null){
+                                              Fluttertoast.showToast(
+                                                msg: "Upload Company Logo.",
+                                                fontSize: 18,
+                                                backgroundColor: Colors.black,
+                                                gravity: ToastGravity.CENTER,
+                                                textColor: Colors.white,
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                timeInSecForIos: 3,
+                                              );
+                                            }else{
+                                              sendCompanyInfo();
+                                            }
+
                                           } else {
                                             Fluttertoast.showToast(
                                               msg: "Select City",

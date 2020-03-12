@@ -20,7 +20,7 @@ class _DashboardState extends State<Dashboard> {
   String appBarTitle = "";
   double wid;
 
-  String CategoryId = "",UserImage="";
+  String CategoryId = "", UserImage = "";
   bool isLoading = true;
   List catData = new List();
   List fasData = new List();
@@ -36,9 +36,7 @@ class _DashboardState extends State<Dashboard> {
     getApiData();
   }
 
-  getApiData() async{
-
-  }
+  getApiData() async {}
 
   getLocalData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -159,19 +157,17 @@ class _DashboardState extends State<Dashboard> {
       showMsg("No Internet Connection.");
     }
   }
+
   String getName() {
     getLocalData();
     return "Profile";
   }
-
 
   @override
   void dispose() {
     scrollController.dispose();
     super.dispose();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -209,12 +205,14 @@ class _DashboardState extends State<Dashboard> {
                     ),
                     actions: <Widget>[
                       GestureDetector(
-                        onTap:(){
-                          Navigator.pushNamed(context, "/UpdateBusinessProfile");
+                        onTap: () {
+                          Navigator.pushNamed(
+                              context, "/UpdateBusinessProfile");
                         },
                         child: new Padding(
-                          padding: EdgeInsets.only(top: 3,bottom: 3,right: 15),
-                          child:  Column(
+                          padding:
+                              EdgeInsets.only(top: 3, bottom: 3, right: 15),
+                          child: Column(
                             children: <Widget>[
                               Container(
                                 height: 30.0,
@@ -226,11 +224,14 @@ class _DashboardState extends State<Dashboard> {
                                     image: new NetworkImage("${UserImage}"),
                                     fit: BoxFit.cover,
                                   ),
-                                  border: Border.all(color: Colors.black, width: 1.0),
+                                  border: Border.all(
+                                      color: Colors.black, width: 1.0),
                                 ),
                               ),
                               //Text("${getName()}",),
-                              Text("Profile",),
+                              Text(
+                                "Profile",
+                              ),
                             ],
                           ),
                         ),
@@ -257,62 +258,60 @@ class _DashboardState extends State<Dashboard> {
           },
           body: new TabBarView(
             children: <Widget>[
-              isLoading
-                  ? ShimmerGridListSkeleton(
-                      length: 10,
-                      isBottomLinesActive: false,
-                      isCircularImage: false,
-                    )
-                  : Container(
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
-                      child: catData.length > 0 && catData != null
-                          ? AnimationLimiter(
-                              child: StaggeredGridView.countBuilder(
-                                padding: const EdgeInsets.only(
-                                    left: 4, right: 4, top: 5),
-                                crossAxisCount: 4,
-                                itemCount: catData.length,
-                                staggeredTileBuilder: (_) =>
-                                    StaggeredTile.fit(2),
-                                mainAxisSpacing: 3,
-                                crossAxisSpacing: 3,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return BusinessAndFestivalImages(
-                                      catData[index]);
-                                },
-                              ),
-                            )
-                          : NoDataComponent(),
-                    ),
-              isLoading
-                  ? ShimmerGridListSkeleton(
-                      length: 10,
-                      isBottomLinesActive: false,
-                      isCircularImage: false,
-                    )
-                  : Container(
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
-                      child: fasData.length > 0 && fasData != null
-                          ? AnimationLimiter(
-                              child: StaggeredGridView.countBuilder(
-                                padding: const EdgeInsets.only(
-                                    left: 4, right: 4, top: 5),
-                                crossAxisCount: 4,
-                                itemCount: fasData.length,
-                                staggeredTileBuilder: (_) =>
-                                    StaggeredTile.fit(2),
-                                mainAxisSpacing: 3,
-                                crossAxisSpacing: 3,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return BusinessAndFestivalImages(
-                                      fasData[index]);
-                                },
-                              ),
-                            )
-                          : NoDataComponent(),
-                    ),
+              Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: isLoading
+                    ? ShimmerGridListSkeleton(
+                        length: 10,
+                        isBottomLinesActive: false,
+                        isCircularImage: false,
+                      )
+                    : catData.length > 0 && catData != null
+                        ? AnimationLimiter(
+                            child: StaggeredGridView.countBuilder(
+                              padding: const EdgeInsets.only(
+                                  left: 4, right: 4, top: 5),
+                              crossAxisCount: 4,
+                              itemCount: catData.length,
+                              staggeredTileBuilder: (_) => StaggeredTile.fit(2),
+                              mainAxisSpacing: 3,
+                              crossAxisSpacing: 3,
+                              itemBuilder: (BuildContext context, int index) {
+                                return BusinessAndFestivalImages(
+                                    catData[index], index);
+                              },
+                            ),
+                          )
+                        : NoDataComponent(),
+              ),
+              Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: isLoading
+                    ? ShimmerGridListSkeleton(
+                        length: 10,
+                        isBottomLinesActive: false,
+                        isCircularImage: false,
+                      )
+                    : fasData.length > 0 && fasData != null
+                        ? AnimationLimiter(
+                            child: StaggeredGridView.countBuilder(
+                              padding: const EdgeInsets.only(
+                                  left: 4, right: 4, top: 5),
+                              crossAxisCount: 4,
+                              itemCount: fasData.length,
+                              staggeredTileBuilder: (_) => StaggeredTile.fit(2),
+                              mainAxisSpacing: 3,
+                              crossAxisSpacing: 3,
+                              itemBuilder: (BuildContext context, int index) {
+                                return BusinessAndFestivalImages(
+                                    fasData[index], index);
+                              },
+                            ),
+                          )
+                        : NoDataComponent(),
+              ),
             ],
           ),
         ),

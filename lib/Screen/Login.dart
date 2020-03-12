@@ -86,6 +86,7 @@ class _LoginState extends State<Login> {
               backgroundColor: Colors.white,
               gravity: ToastGravity.TOP,
               textColor: Colors.black);*/
+
           await pr.hide();
           await _logout();
           await sendUserDetails(profile['id'].toString(), profile['name'],

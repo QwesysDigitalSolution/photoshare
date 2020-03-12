@@ -84,7 +84,6 @@ class _PreviewImageState extends State<PreviewImage> {
   @override
   Widget build(BuildContext context) {
     double widt = MediaQuery.of(context).size.height;
-
     return Scaffold(
       body: SafeArea(
         child: Container(
